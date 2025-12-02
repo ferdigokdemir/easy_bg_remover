@@ -9,28 +9,32 @@
 </head>
 <body>
   <div class="app-container">
-    <header class="app-header">
-      <h1>🎨 Easy BG Remover</h1>
-      <p>AI-powered background removal tool</p>
-    </header>
-
     <main class="main-content">
       <div class="image-container">
         <!-- Original Image -->
         <div class="image-box" id="original-box">
-          <div class="image-label">Original Image</div>
-          <div class="image-preview" id="original-preview">
+          <div class="image-preview drop-zone" id="original-preview">
             <div class="placeholder" id="original-placeholder">
               <span class="placeholder-icon">📷</span>
-              <span class="placeholder-text">Click to select an image</span>
+              <span class="placeholder-text">Click or drag & drop an image</span>
+              <span class="placeholder-hint">JPG, PNG, WebP (max 20MB)</span>
             </div>
             <img id="original-image" class="preview-image hidden" alt="Original image">
           </div>
         </div>
 
+        <!-- Action Buttons -->
+        <div class="button-container-middle">
+          <button class="btn btn-icon btn-success" id="remove-btn" disabled title="Remove Background">
+            🪄
+          </button>
+          <button class="btn btn-icon btn-secondary" id="save-btn" disabled title="Save">
+            💾
+          </button>
+        </div>
+
         <!-- Result Image -->
         <div class="image-box" id="result-box">
-          <div class="image-label">Result</div>
           <div class="image-preview checkered" id="result-preview">
             <div class="placeholder" id="result-placeholder">
               <span class="placeholder-icon">✨</span>
@@ -49,23 +53,17 @@
         <div class="progress-text" id="progress-text">Processing...</div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="button-container">
-        <button class="btn btn-success" id="remove-btn" disabled>
-          🪄 Remove Background
-        </button>
-        <button class="btn btn-secondary" id="save-btn" disabled>
-          💾 Save
-        </button>
-      </div>
-
       <!-- Status Message -->
-      <div class="status-message" id="status-message"></div>
+      <div class="status-message hidden" id="status-message"></div>
     </main>
+  </div>
 
-    <footer class="app-footer">
-      <p>Powered by @imgly/background-removal-node</p>
-    </footer>
+  <!-- Drag overlay -->
+  <div class="drag-overlay hidden" id="drag-overlay">
+    <div class="drag-overlay-content">
+      <span class="drag-icon">📥</span>
+      <span class="drag-text">Drop image here</span>
+    </div>
   </div>
 
   <script src="renderer.js"></script>

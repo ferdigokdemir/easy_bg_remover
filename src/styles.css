@@ -37,28 +37,12 @@ button, input, .image-preview {
   padding: 10px;
 }
 
-.app-header {
-  text-align: center;
-  padding: 15px 10px;
-  padding-top: 30px;
-}
-
-.app-header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  color: var(--text-primary);
-}
-
-.app-header p {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 10px;
 }
 
@@ -69,7 +53,6 @@ button, input, .image-preview {
   gap: 15px;
   width: 100%;
   max-width: 1100px;
-  margin-bottom: 15px;
 }
 
 .image-box {
@@ -77,13 +60,24 @@ button, input, .image-preview {
   max-width: 450px;
 }
 
-.image-label {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+/* Middle Button Container */
+.button-container-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  -webkit-app-region: no-drag;
+}
+
+.btn-icon {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-preview {
@@ -282,11 +276,57 @@ button, input, .image-preview {
   border: 1px solid var(--accent-primary);
 }
 
-.app-footer {
-  text-align: center;
-  padding: 10px;
+/* Drop Zone Styles */
+.drop-zone {
+  transition: all 0.3s ease;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent-primary) !important;
+  border-style: solid !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  transform: scale(1.02);
+}
+
+.placeholder-hint {
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* Drag Overlay */
+.drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.drag-overlay.hidden {
+  display: none;
+}
+
+.drag-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  color: white;
+}
+
+.drag-icon {
+  font-size: 5rem;
+}
+
+.drag-text {
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 /* Responsive Design */
