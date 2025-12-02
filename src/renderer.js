@@ -6,9 +6,8 @@ const resultImage = document.getElementById('result-image');
 const originalPlaceholder = document.getElementById('original-placeholder');
 const resultPlaceholder = document.getElementById('result-placeholder');
 const progressContainer = document.getElementById('progress-container');
-const progressFill = document.getElementById('progress-fill');
 const progressText = document.getElementById('progress-text');
-const statusMessage = document.getElementById('status-message');
+const spinner = document.getElementById('spinner');
 const originalPreview = document.getElementById('original-preview');
 const dragOverlay = document.getElementById('drag-overlay');
 
@@ -22,37 +21,24 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 // ==================== Utility Functions ====================
 
-// Show status message
-function showStatus(message, type = 'info') {
-  statusMessage.textContent = message;
-  statusMessage.className = `status-message ${type}`;
-  statusMessage.classList.remove('hidden');
-  
-  if (type !== 'loading') {
-    setTimeout(() => {
-      statusMessage.classList.add('hidden');
-    }, 5000);
-  }
+// Show alert message
+function showAlert(message, type = 'info') {
+  window.electronAPI.showAlert(message, type);
 }
 
-// Hide status message
-function hideStatus() {
-  statusMessage.classList.add('hidden');
+// Update progress
+function updateProgress(progress) {
+  progressText.textContent = `${progress}%`;
 }
 
-// Update progress bar
-function updateProgress(progress, text) {
-  progressFill.style.width = `${progress}%`;
-  progressText.textContent = text || `Processing... ${progress}%`;
-}
-
-// Show/hide progress
+// Show/hide spinner
 function showProgress(show) {
   if (show) {
-    progressContainer.classList.remove('hidden');
-    updateProgress(0, 'Starting...');
+    spinner.classList.add('active');
+    updateProgress(0);
   } else {
-    progressContainer.classList.add('hidden');
+    spinner.classList.remove('active');
+    updateProgress(0);
   }
 }
 
@@ -107,7 +93,7 @@ dragOverlay.addEventListener('drop', async (e) => {
   const files = Array.from(e.dataTransfer.files).filter(f => SUPPORTED_TYPES.includes(f.type));
   
   if (files.length === 0) {
-    showStatus('No valid image files found. Use JPG, PNG, or WebP.', 'error');
+    showAlert('No valid image files found. Use JPG, PNG, or WebP.', 'error');
     return;
   }
 
@@ -136,7 +122,7 @@ originalPreview.addEventListener('drop', async (e) => {
 async function handleFileDrop(file) {
   const validation = validateFile(file);
   if (!validation.valid) {
-    showStatus(validation.error, 'error');
+    showAlert(validation.error, 'error');
     return;
   }
 
@@ -160,10 +146,8 @@ async function handleFileDrop(file) {
     
     removeBtn.disabled = false;
     saveBtn.disabled = true;
-    
-    showStatus('Image loaded. Click the button to remove background.', 'success');
   } catch (error) {
-    showStatus('Error loading image: ' + error.message, 'error');
+    showAlert('Error loading image: ' + error.message, 'error');
   }
 }
 
@@ -174,7 +158,7 @@ originalPreview.addEventListener('click', async () => {
     
     if (result) {
       if (result.error) {
-        showStatus(result.error, 'error');
+        showAlert(result.error, 'error');
         return;
       }
       
@@ -190,25 +174,22 @@ originalPreview.addEventListener('click', async () => {
       
       removeBtn.disabled = false;
       saveBtn.disabled = true;
-      
-      showStatus('Image loaded. Click the button to remove background.', 'success');
     }
   } catch (error) {
-    showStatus('Error selecting image: ' + error.message, 'error');
+    showAlert('Error selecting image: ' + error.message, 'error');
   }
 });
 
 // Remove background button click
 removeBtn.addEventListener('click', async () => {
   if (!currentImage) {
-    showStatus('Please select an image first.', 'error');
+    showAlert('Please select an image first.', 'error');
     return;
   }
 
   try {
     removeBtn.disabled = true;
     showProgress(true);
-    showStatus('Removing background... This may take a moment.', 'loading');
 
     const result = await window.electronAPI.removeBackground(currentImage.path);
 
@@ -222,23 +203,21 @@ removeBtn.addEventListener('click', async () => {
       
       saveBtn.disabled = false;
       removeBtn.disabled = false;
-      
-      showStatus('Background removed successfully!', 'success');
     } else {
       removeBtn.disabled = false;
-      showStatus('Error: ' + result.error, 'error');
+      showAlert('Error: ' + result.error, 'error');
     }
   } catch (error) {
     showProgress(false);
     removeBtn.disabled = false;
-    showStatus('An error occurred: ' + error.message, 'error');
+    showAlert('An error occurred: ' + error.message, 'error');
   }
 });
 
 // Save button click
 saveBtn.addEventListener('click', async () => {
   if (!processedImage) {
-    showStatus('No image to save.', 'error');
+    showAlert('No image to save.', 'error');
     return;
   }
 
@@ -247,12 +226,12 @@ saveBtn.addEventListener('click', async () => {
     const result = await window.electronAPI.saveImage(processedImage, originalName);
 
     if (result.success) {
-      showStatus('Image saved successfully: ' + result.path, 'success');
+      // Image saved successfully, no alert needed
     } else if (!result.canceled) {
-      showStatus('Save error: ' + result.error, 'error');
+      showAlert('Save error: ' + result.error, 'error');
     }
   } catch (error) {
-    showStatus('An error occurred: ' + error.message, 'error');
+    showAlert('An error occurred: ' + error.message, 'error');
   }
 });
 
@@ -260,16 +239,8 @@ saveBtn.addEventListener('click', async () => {
 
 // Listen for progress updates from main process
 window.electronAPI.onProgressUpdate((data) => {
-  const { key, progress } = data;
-  let statusText = 'Processing...';
-  
-  if (key.includes('download')) {
-    statusText = 'Downloading model...';
-  } else if (key.includes('compute')) {
-    statusText = 'Analyzing background...';
-  }
-  
-  updateProgress(progress, `${statusText} ${progress}%`);
+  const { progress } = data;
+  updateProgress(progress);
 });
 
 // Cleanup on window unload

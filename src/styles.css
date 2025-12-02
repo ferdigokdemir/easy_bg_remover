@@ -73,11 +73,56 @@ button, input, .image-preview {
   width: 50px;
   height: 50px;
   padding: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: var(--accent-primary);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Progress Spinner */
+.progress-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.progress-spinner.hidden {
+  display: none;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--bg-tertiary);
+  border-top-color: var(--bg-tertiary);
+  border-radius: 50%;
+}
+
+.spinner.active {
+  border-top-color: var(--accent-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.progress-percent {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .image-preview {
@@ -152,35 +197,6 @@ button, input, .image-preview {
 @keyframes pulse {
   0%, 100% { opacity: 0.5; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.1); }
-}
-
-.progress-container {
-  width: 100%;
-  max-width: 500px;
-  margin-bottom: 20px;
-}
-
-.progress-bar {
-  height: 8px;
-  background: var(--bg-tertiary);
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid var(--accent-primary);
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--accent-primary);
-  width: 0%;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
-
-.progress-text {
-  text-align: center;
-  margin-top: 10px;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
 }
 
 .button-container {

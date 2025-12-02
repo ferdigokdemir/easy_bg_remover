@@ -15,12 +15,13 @@ function createWindow() {
     height: 360,
     minWidth: 700,
     minHeight: 300,
+    title: 'Easy BG Remover',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     },
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'default',
     backgroundColor: '#ffffff'
   });
 
@@ -153,4 +154,32 @@ ipcMain.handle('save-image', async (event, imageData, originalName) => {
   } catch (error) {
     return { success: false, error: error.message };
   }
+});
+
+// Handle alert dialogs
+ipcMain.handle('show-alert', async (event, message, type) => {
+  const options = {
+    message: message,
+    buttons: ['OK']
+  };
+
+  switch (type) {
+    case 'error':
+      options.type = 'error';
+      options.title = 'Error';
+      break;
+    case 'success':
+      options.type = 'info';
+      options.title = 'Success';
+      break;
+    case 'warning':
+      options.type = 'warning';
+      options.title = 'Warning';
+      break;
+    default:
+      options.type = 'info';
+      options.title = 'Info';
+  }
+
+  await dialog.showMessageBox(mainWindow, options);
 });

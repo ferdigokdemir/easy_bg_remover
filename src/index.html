@@ -25,12 +25,17 @@
 
         <!-- Action Buttons -->
         <div class="button-container-middle">
-          <button class="btn btn-icon btn-success" id="remove-btn" disabled title="Remove Background">
-            🪄
+          <button class="btn btn-icon" id="remove-btn" disabled title="Remove Background">
+            🚀
           </button>
-          <button class="btn btn-icon btn-secondary" id="save-btn" disabled title="Save">
+          <button class="btn btn-icon" id="save-btn" disabled title="Save">
             💾
           </button>
+          <!-- Progress Spinner -->
+          <div class="progress-spinner" id="progress-container">
+            <div class="spinner" id="spinner"></div>
+            <span class="progress-percent" id="progress-text">0%</span>
+          </div>
         </div>
 
         <!-- Result Image -->
@@ -44,17 +49,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Progress Bar -->
-      <div class="progress-container hidden" id="progress-container">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
-        <div class="progress-text" id="progress-text">Processing...</div>
-      </div>
-
-      <!-- Status Message -->
-      <div class="status-message hidden" id="status-message"></div>
     </main>
   </div>
 

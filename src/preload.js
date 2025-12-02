@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectImage: () => ipcRenderer.invoke('select-image'),
   removeBackground: (imageData) => ipcRenderer.invoke('remove-background', imageData),
   saveImage: (imageData, originalName) => ipcRenderer.invoke('save-image', imageData, originalName),
+  showAlert: (message, type) => ipcRenderer.invoke('show-alert', message, type),
   onProgressUpdate: (callback) => {
     // Remove existing listener to prevent memory leaks
     if (progressListener) {
