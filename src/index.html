@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <title>Easy BG Remover</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>🎨 Easy BG Remover</h1>
+      <p>AI-powered background removal tool</p>
+    </header>
+
+    <main class="main-content">
+      <div class="image-container">
+        <!-- Original Image -->
+        <div class="image-box" id="original-box">
+          <div class="image-label">Original Image</div>
+          <div class="image-preview" id="original-preview">
+            <div class="placeholder" id="original-placeholder">
+              <span class="placeholder-icon">📷</span>
+              <span class="placeholder-text">Click to select an image</span>
+            </div>
+            <img id="original-image" class="preview-image hidden" alt="Original image">
+          </div>
+        </div>
+
+        <!-- Arrow -->
+        <div class="arrow-container">
+          <span class="arrow">→</span>
+        </div>
+
+        <!-- Result Image -->
+        <div class="image-box" id="result-box">
+          <div class="image-label">Result</div>
+          <div class="image-preview checkered" id="result-preview">
+            <div class="placeholder" id="result-placeholder">
+              <span class="placeholder-icon">✨</span>
+              <span class="placeholder-text">Processed image will appear here</span>
+            </div>
+            <img id="result-image" class="preview-image hidden" alt="Processed image">
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-container hidden" id="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text">Processing...</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="button-container">
+        <button class="btn btn-success" id="remove-btn" disabled>
+          🪄 Remove Background
+        </button>
+        <button class="btn btn-secondary" id="save-btn" disabled>
+          💾 Save
+        </button>
+      </div>
+
+      <!-- Status Message -->
+      <div class="status-message" id="status-message"></div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Powered by @imgly/background-removal-node</p>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
