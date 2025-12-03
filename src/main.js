@@ -1,7 +1,31 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { Worker } = require('worker_threads');
+
+// Context menu handler
+ipcMain.handle('show-context-menu', async (event, hasImage) => {
+  return new Promise((resolve) => {
+    const template = [
+      {
+        label: '💾 Download',
+        enabled: hasImage,
+        click: () => resolve('download')
+      },
+      {
+        label: '🗑️ Clear',
+        enabled: hasImage,
+        click: () => resolve('clear')
+      }
+    ];
+    
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup({ 
+      window: mainWindow,
+      callback: () => resolve(null)
+    });
+  });
+});
 
 let mainWindow;
 
@@ -11,9 +35,9 @@ const SUPPORTED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 900,
+    width: 700,
     height: 360,
-    minWidth: 700,
+    minWidth: 600,
     minHeight: 300,
     title: 'Easy BG Remover',
     webPreferences: {

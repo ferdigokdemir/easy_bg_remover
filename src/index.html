@@ -11,41 +11,20 @@
   <div class="app-container">
     <main class="main-content">
       <div class="image-container">
-        <!-- Original Image -->
-        <div class="image-box" id="original-box">
-          <div class="image-preview drop-zone" id="original-preview">
-            <div class="placeholder" id="original-placeholder">
+        <!-- Single Image Area (Drop Zone + Result) -->
+        <div class="image-box" id="image-box">
+          <div class="image-preview drop-zone checkered" id="image-preview">
+            <div class="placeholder" id="placeholder">
               <span class="placeholder-icon">📷</span>
               <span class="placeholder-text">Click or drag & drop an image</span>
-              <span class="placeholder-hint">JPG, PNG, WebP (max 20MB)</span>
+              <span class="placeholder-hint">JPG, PNG, WebP (max 20MB) • Right-click to save</span>
             </div>
-            <img id="original-image" class="preview-image hidden" alt="Original image">
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="button-container-middle">
-          <button class="btn btn-icon" id="remove-btn" disabled title="Remove Background">
-            🚀
-          </button>
-          <button class="btn btn-icon" id="save-btn" disabled title="Save">
-            💾
-          </button>
-          <!-- Progress Spinner -->
-          <div class="progress-spinner" id="progress-container">
-            <div class="spinner" id="spinner"></div>
-            <span class="progress-percent" id="progress-text">0%</span>
-          </div>
-        </div>
-
-        <!-- Result Image -->
-        <div class="image-box" id="result-box">
-          <div class="image-preview checkered" id="result-preview">
-            <div class="placeholder" id="result-placeholder">
-              <span class="placeholder-icon">✨</span>
-              <span class="placeholder-text">Processed image will appear here</span>
+            <img id="preview-image" class="preview-image hidden" alt="Image">
+            <!-- Progress Spinner -->
+            <div class="progress-spinner hidden" id="progress-container">
+              <div class="spinner active"></div>
+              <span class="progress-percent" id="progress-text">0%</span>
             </div>
-            <img id="result-image" class="preview-image hidden" alt="Processed image">
           </div>
         </div>
       </div>

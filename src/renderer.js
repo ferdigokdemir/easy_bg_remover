@@ -1,19 +1,15 @@
 // DOM Elements
-const removeBtn = document.getElementById('remove-btn');
-const saveBtn = document.getElementById('save-btn');
-const originalImage = document.getElementById('original-image');
-const resultImage = document.getElementById('result-image');
-const originalPlaceholder = document.getElementById('original-placeholder');
-const resultPlaceholder = document.getElementById('result-placeholder');
+const previewImage = document.getElementById('preview-image');
+const placeholder = document.getElementById('placeholder');
 const progressContainer = document.getElementById('progress-container');
 const progressText = document.getElementById('progress-text');
-const spinner = document.getElementById('spinner');
-const originalPreview = document.getElementById('original-preview');
+const imagePreview = document.getElementById('image-preview');
 const dragOverlay = document.getElementById('drag-overlay');
 
 // State
 let currentImage = null;
 let processedImage = null;
+let isProcessing = false;
 
 // Constants
 const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -34,11 +30,12 @@ function updateProgress(progress) {
 // Show/hide spinner
 function showProgress(show) {
   if (show) {
-    spinner.classList.add('active');
+    progressContainer.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    previewImage.classList.add('hidden');
     updateProgress(0);
   } else {
-    spinner.classList.remove('active');
-    updateProgress(0);
+    progressContainer.classList.add('hidden');
   }
 }
 
@@ -101,16 +98,16 @@ dragOverlay.addEventListener('drop', async (e) => {
 });
 
 // Single preview drop zone
-originalPreview.addEventListener('dragover', (e) => {
-  originalPreview.classList.add('drag-over');
+imagePreview.addEventListener('dragover', (e) => {
+  imagePreview.classList.add('drag-over');
 });
 
-originalPreview.addEventListener('dragleave', (e) => {
-  originalPreview.classList.remove('drag-over');
+imagePreview.addEventListener('dragleave', (e) => {
+  imagePreview.classList.remove('drag-over');
 });
 
-originalPreview.addEventListener('drop', async (e) => {
-  originalPreview.classList.remove('drag-over');
+imagePreview.addEventListener('drop', async (e) => {
+  imagePreview.classList.remove('drag-over');
   const files = Array.from(e.dataTransfer.files).filter(f => SUPPORTED_TYPES.includes(f.type));
   if (files.length > 0) {
     await handleFileDrop(files[0]);
@@ -120,6 +117,8 @@ originalPreview.addEventListener('drop', async (e) => {
 // ==================== File Handling ====================
 
 async function handleFileDrop(file) {
+  if (isProcessing) return;
+  
   const validation = validateFile(file);
   if (!validation.valid) {
     showAlert(validation.error, 'error');
@@ -135,24 +134,47 @@ async function handleFileDrop(file) {
       size: file.size
     };
     
-    originalImage.src = dataUrl;
-    originalImage.classList.remove('hidden');
-    originalPlaceholder.classList.add('hidden');
-    
-    // Reset result
-    resultImage.classList.add('hidden');
-    resultPlaceholder.classList.remove('hidden');
-    processedImage = null;
-    
-    removeBtn.disabled = false;
-    saveBtn.disabled = true;
+    // Auto process - remove background immediately
+    await processImage();
   } catch (error) {
     showAlert('Error loading image: ' + error.message, 'error');
   }
 }
 
-// Click on original preview to select image
-originalPreview.addEventListener('click', async () => {
+// Process image - remove background
+async function processImage() {
+  if (!currentImage || isProcessing) return;
+  
+  try {
+    isProcessing = true;
+    showProgress(true);
+
+    const result = await window.electronAPI.removeBackground(currentImage.path);
+
+    showProgress(false);
+    isProcessing = false;
+
+    if (result.success) {
+      processedImage = result.data;
+      previewImage.src = result.data;
+      previewImage.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    } else {
+      placeholder.classList.remove('hidden');
+      showAlert('Error: ' + result.error, 'error');
+    }
+  } catch (error) {
+    showProgress(false);
+    isProcessing = false;
+    placeholder.classList.remove('hidden');
+    showAlert('An error occurred: ' + error.message, 'error');
+  }
+}
+
+// Click on preview to select image (always opens file picker)
+imagePreview.addEventListener('click', async () => {
+  if (isProcessing) return;
+  
   try {
     const result = await window.electronAPI.selectImage();
     
@@ -163,75 +185,41 @@ originalPreview.addEventListener('click', async () => {
       }
       
       currentImage = result;
-      originalImage.src = result.data;
-      originalImage.classList.remove('hidden');
-      originalPlaceholder.classList.add('hidden');
       
-      // Reset result
-      resultImage.classList.add('hidden');
-      resultPlaceholder.classList.remove('hidden');
-      processedImage = null;
-      
-      removeBtn.disabled = false;
-      saveBtn.disabled = true;
+      // Auto process - remove background immediately
+      await processImage();
     }
   } catch (error) {
     showAlert('Error selecting image: ' + error.message, 'error');
   }
 });
 
-// Remove background button click
-removeBtn.addEventListener('click', async () => {
-  if (!currentImage) {
-    showAlert('Please select an image first.', 'error');
-    return;
-  }
-
-  try {
-    removeBtn.disabled = true;
-    showProgress(true);
-
-    const result = await window.electronAPI.removeBackground(currentImage.path);
-
-    showProgress(false);
-
-    if (result.success) {
-      processedImage = result.data;
-      resultImage.src = result.data;
-      resultImage.classList.remove('hidden');
-      resultPlaceholder.classList.add('hidden');
-      
-      saveBtn.disabled = false;
-      removeBtn.disabled = false;
-    } else {
-      removeBtn.disabled = false;
-      showAlert('Error: ' + result.error, 'error');
+// Right-click to show context menu
+imagePreview.addEventListener('contextmenu', async (e) => {
+  e.preventDefault();
+  
+  if (isProcessing) return;
+  
+  const hasImage = !!processedImage;
+  const action = await window.electronAPI.showContextMenu(hasImage);
+  
+  if (action === 'download' && processedImage) {
+    try {
+      const originalName = currentImage ? currentImage.name : null;
+      const result = await window.electronAPI.saveImage(processedImage, originalName);
+      if (!result.success && !result.canceled) {
+        showAlert('Save error: ' + result.error, 'error');
+      }
+    } catch (error) {
+      showAlert('An error occurred: ' + error.message, 'error');
     }
-  } catch (error) {
-    showProgress(false);
-    removeBtn.disabled = false;
-    showAlert('An error occurred: ' + error.message, 'error');
-  }
-});
-
-// Save button click
-saveBtn.addEventListener('click', async () => {
-  if (!processedImage) {
-    showAlert('No image to save.', 'error');
-    return;
-  }
-
-  try {
-    const originalName = currentImage ? currentImage.name : null;
-    const result = await window.electronAPI.saveImage(processedImage, originalName);
-
-    if (result.success) {
-      // Image saved successfully, no alert needed
-    } else if (!result.canceled) {
-      showAlert('Save error: ' + result.error, 'error');
-    }
-  } catch (error) {
-    showAlert('An error occurred: ' + error.message, 'error');
+  } else if (action === 'clear') {
+    // Clear current image
+    currentImage = null;
+    processedImage = null;
+    previewImage.src = '';
+    previewImage.classList.add('hidden');
+    placeholder.classList.remove('hidden');
   }
 });
 
